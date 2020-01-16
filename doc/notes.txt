@@ -1,0 +1,19 @@
+pip install flask-restplus
+pip install phonenumbers
+
+pip install pipreqs
+
+docker stop $(docker ps -a -q); docker rm $(docker ps -a -q); docker volume rm $(docker volume ls -qf dangling=true)
+
+docker network rm $(docker network ls -q)
+
+sudo lsof -nP | grep LISTEN
+
+sudo kill -9 1548
+
+
+exclude:
+pywin32==227
+pywinpty==0.5.7
+
+pip install pipreqs

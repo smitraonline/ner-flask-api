@@ -1,0 +1,4 @@
+flask_restplus==0.13.0
+phonenumbers==8.11.1
+nltk==3.4.5
+Flask==1.1.1

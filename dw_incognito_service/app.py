@@ -1,0 +1,60 @@
+import logging.config
+
+import sys
+import os
+from flask import Flask, Blueprint
+from flask_restplus import Resource, Api
+
+dir = os.path.dirname(__name__)
+# we use if not statement to do this one time only
+if not dir in sys.path:
+   sys.path.append(dir)
+
+import dw_incognito_service
+from dw_incognito_service import settings
+from dw_incognito_service.api.v1.endpoints.anonymization import ns as anonymization_namespace
+from dw_incognito_service.api.restplus import api
+
+app = Flask(__name__)                  #  Create a Flask WSGI application
+logging_conf_path = os.path.normpath(os.path.join(os.path.dirname(__file__), './logging.conf'))
+logging.config.fileConfig(logging_conf_path)
+log = logging.getLogger(__name__)
+api = Api(app)                         #  Create a Flask-RESTPlus API
+
+
+
+def configure_app(flask_app):
+    flask_app.config['SERVER_NAME'] = settings.FLASK_SERVER_NAME
+    flask_app.config['SWAGGER_UI_DOC_EXPANSION'] = settings.RESTPLUS_SWAGGER_UI_DOC_EXPANSION
+    flask_app.config['RESTPLUS_VALIDATE'] = settings.RESTPLUS_VALIDATE
+    flask_app.config['RESTPLUS_MASK_SWAGGER'] = settings.RESTPLUS_MASK_SWAGGER
+    flask_app.config['ERROR_404_HELP'] = settings.RESTPLUS_ERROR_404_HELP
+
+
+def initialize_app(flask_app):
+    configure_app(flask_app)
+
+    blueprint = Blueprint('api', __name__, url_prefix='/api')
+    api.init_app(blueprint)
+    api.add_namespace(anonymization_namespace)
+    flask_app.register_blueprint(blueprint)
+
+
+def main():
+    initialize_app(app)
+    log.info('>>>>> Starting development server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
+    app.run(debug=settings.FLASK_DEBUG)
+
+
+if __name__ == "__main__":
+    main()                             #  Start a development server
+
+'''
+@api.route('/hello')                   #  Create a URL route to this resource
+class HelloWorld(Resource):            #  Create a RESTful resource
+    def get(self):                     #  Create GET endpoint
+        return {'hello': 'world'}
+
+if __name__ == '__main__':
+    app.run(debug=True)                #  Start a development server
+'''
